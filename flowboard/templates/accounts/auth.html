@@ -1,0 +1,159 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flowboard — {% if active_tab == 'signup' %}Sign Up{% else %}Sign In{% endif %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/auth.css' %}" />
+</head>
+<body data-active-tab="{{ active_tab }}">
+
+<!-- Left panel -->
+<div class="panel-left">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#3D5C49"/>
+        <rect x="10" y="2" width="6" height="6" rx="1.5" fill="#3D5C49" opacity=".5"/>
+        <rect x="2" y="10" width="6" height="6" rx="1.5" fill="#3D5C49" opacity=".5"/>
+        <rect x="10" y="10" width="6" height="6" rx="1.5" fill="#3D5C49" opacity=".3"/>
+      </svg>
+    </div>
+    <span class="brand-name">Flowboard</span>
+  </div>
+
+  <div class="panel-tagline">
+    <h1>Focused work,<br/><em>together.</em></h1>
+    <p>A calm workspace for teams to organise projects, track tasks, and move forward — without the noise.</p>
+  </div>
+
+  <div class="features">
+    <div class="feature-pill"><div class="feature-dot"></div>Projects with role-based access</div>
+    <div class="feature-pill"><div class="feature-dot"></div>Tasks, priorities &amp; deadlines</div>
+    <div class="feature-pill"><div class="feature-dot"></div>Labels, comments &amp; team mentions</div>
+    <div class="feature-pill"><div class="feature-dot"></div>REST API — built on Django &amp; DRF</div>
+  </div>
+</div>
+
+<!-- Right panel -->
+<div class="panel-right">
+  <div class="auth-card">
+
+    <div class="auth-header" id="auth-header">
+      <h2 id="header-title">{% if active_tab == 'signup' %}Create an account{% else %}Welcome back{% endif %}</h2>
+      <p id="header-sub">
+        {% if active_tab == 'signup' %}
+          Already have an account? <a onclick="switchTab('signin')">Sign in</a>
+        {% else %}
+          Don't have an account? <a onclick="switchTab('signup')">Sign up</a>
+        {% endif %}
+      </p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="tab-btn {% if active_tab != 'signup' %}active{% endif %}" id="tab-signin" onclick="switchTab('signin')">Sign in</button>
+      <button class="tab-btn {% if active_tab == 'signup' %}active{% endif %}" id="tab-signup" onclick="switchTab('signup')">Sign up</button>
+    </div>
+
+    <!-- Sign In form -->
+    <div class="form-panel {% if active_tab != 'signup' %}active{% endif %}" id="panel-signin">
+      {% if signin_errors %}
+        <div class="django-error"><ul>{% for err in signin_errors %}<li>{{ err }}</li>{% endfor %}</ul></div>
+      {% endif %}
+      <form id="signin-form" method="post" action="{% url 'accounts:signin' %}">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="si-email">Email</label>
+          <input type="email" id="si-email" name="email" placeholder="you@example.com" autocomplete="email"
+                 value="{{ signin_email }}" />
+          <div class="field-error" id="si-email-err">Please enter a valid email.</div>
+        </div>
+        <div class="form-group">
+          <label for="si-password">Password</label>
+          <input type="password" id="si-password" name="password" placeholder="••••••••" autocomplete="current-password" />
+          <div class="field-error" id="si-pass-err">Password is required.</div>
+        </div>
+        <div class="form-footer">
+          <label class="checkbox-label">
+            <input type="checkbox" id="remember" name="remember" /> Remember me
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+        <button type="button" class="btn-primary" onclick="handleSignIn()">Sign in</button>
+      </form>
+
+      <div class="divider">or continue with</div>
+      <button class="btn-oauth">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21.8055 10.0415H21V10H12V14H17.6515C16.827 16.3285 14.6115 18 12 18C8.6865 18 6 15.3135 6 12C6 8.6865 8.6865 6 12 6C13.5295 6 14.921 6.577 15.9805 7.5195L18.809 4.691C17.023 3.0265 14.634 2 12 2C6.4775 2 2 6.4775 2 12C2 17.5225 6.4775 22 12 22C17.5225 22 22 17.5225 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z" fill="#FFC107"/>
+          <path d="M3.15302 7.3455L6.43852 9.755C7.32752 7.554 9.48052 6 12 6C13.5295 6 14.921 6.577 15.9805 7.5195L18.809 4.691C17.023 3.0265 14.634 2 12 2C8.15902 2 4.82802 4.1685 3.15302 7.3455Z" fill="#FF3D00"/>
+          <path d="M12 22C14.583 22 16.93 21.0115 18.7045 19.404L15.6095 16.785C14.5718 17.5742 13.3037 18.001 12 18C9.39903 18 7.19053 16.3415 6.35853 14.027L3.09753 16.5395C4.75253 19.778 8.11353 22 12 22Z" fill="#4CAF50"/>
+          <path d="M21.8055 10.0415H21V10H12V14H17.6515C17.2571 15.1082 16.5467 16.0766 15.608 16.7855L15.6095 16.7845L18.7045 19.4035C18.4855 19.6025 22 17 22 12C22 11.3295 21.931 10.675 21.8055 10.0415Z" fill="#1976D2"/>
+        </svg>
+        Continue with Google
+      </button>
+    </div>
+
+    <!-- Sign Up form -->
+    <div class="form-panel {% if active_tab == 'signup' %}active{% endif %}" id="panel-signup">
+      {% if signup_errors %}
+        <div class="django-error"><ul>{% for err in signup_errors %}<li>{{ err }}</li>{% endfor %}</ul></div>
+      {% endif %}
+      <form id="signup-form" method="post" action="{% url 'accounts:signup' %}">
+        {% csrf_token %}
+        <div class="input-row">
+          <div class="form-group">
+            <label for="su-fname">First name</label>
+            <input type="text" id="su-fname" name="first_name" placeholder="Deya" autocomplete="given-name"
+                   value="{{ signup_data.first_name }}" />
+            <div class="field-error" id="su-fname-err">Required.</div>
+          </div>
+          <div class="form-group">
+            <label for="su-lname">Last name</label>
+            <input type="text" id="su-lname" name="last_name" placeholder="Naydenova" autocomplete="family-name"
+                   value="{{ signup_data.last_name }}" />
+            <div class="field-error" id="su-lname-err">Required.</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="su-email">Email</label>
+          <input type="email" id="su-email" name="email" placeholder="you@example.com" autocomplete="email"
+                 value="{{ signup_data.email }}" />
+          <div class="field-error" id="su-email-err">Please enter a valid email.</div>
+        </div>
+        <div class="form-group">
+          <label for="su-password">Password</label>
+          <input type="password" id="su-password" name="password" placeholder="••••••••" autocomplete="new-password" />
+          <div class="field-error" id="su-pass-err">Min. 8 characters required.</div>
+        </div>
+        <div class="form-group" style="margin-bottom:1.5rem;">
+          <label for="su-confirm">Confirm password</label>
+          <input type="password" id="su-confirm" name="confirm" placeholder="••••••••" autocomplete="new-password" />
+          <div class="field-error" id="su-confirm-err">Passwords don't match.</div>
+        </div>
+        <button type="button" class="btn-primary" onclick="handleSignUp()">Create account</button>
+      </form>
+    </div>
+
+    <!-- Success message -->
+    <div class="success-msg" id="success-msg" {% if show_success %}style="display:block;"{% endif %}>
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+      </div>
+      <h3>Account created!</h3>
+      <p>Welcome to Flowboard. <a onclick="switchTab('signin')" style="color:var(--sage);cursor:pointer;font-weight:500;">Sign in</a> to get started.</p>
+    </div>
+
+  </div>
+</div>
+
+<script src="{% static 'js/auth.js' %}"></script>
+</body>
+</html>
