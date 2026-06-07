@@ -51,7 +51,7 @@
   <div class="project-grid">
     {% if projects %}
       {% for project in projects %}
-        <div class="project-card">
+        <a class="project-card" href="{% url 'projects:project_detail' project.pk %}">
           <div class="card-name">{{ project.name }}</div>
           {% if project.description %}
             <div class="card-desc">{{ project.description }}</div>
@@ -67,7 +67,7 @@
               </svg>
             </span>
           </div>
-        </div>
+        </a>
       {% endfor %}
     {% else %}
       <div class="empty-state">

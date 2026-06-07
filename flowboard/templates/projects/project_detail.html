@@ -1,0 +1,248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ project.name }} — Flowboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/project_detail.css' %}" />
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a href="{% url 'projects:dashboard' %}" class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#B8D4BF"/>
+        <rect x="10" y="2" width="6" height="6" rx="1.5" fill="#B8D4BF" opacity=".6"/>
+        <rect x="2" y="10" width="6" height="6" rx="1.5" fill="#B8D4BF" opacity=".6"/>
+        <rect x="10" y="10" width="6" height="6" rx="1.5" fill="#B8D4BF" opacity=".35"/>
+      </svg>
+    </div>
+    <span class="brand-name">Flowboard</span>
+  </a>
+
+  <div class="navbar-spacer"></div>
+
+  <div class="nav-user">
+    <div class="nav-avatar">{{ request.user.first_name|slice:":1"|upper }}{{ request.user.last_name|slice:":1"|upper }}</div>
+    <span class="nav-username">{{ request.user.get_full_name|default:request.user.username }}</span>
+    <a href="{% url 'accounts:signout' %}" class="btn-logout">Sign out</a>
+  </div>
+</nav>
+
+<!-- Page -->
+<main class="page">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="{% url 'projects:dashboard' %}">Projects</a>
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 2l4 4-4 4"/>
+    </svg>
+    {{ project.name }}
+  </nav>
+
+  <!-- Project heading -->
+  <div class="project-header">
+    <h1>{{ project.name }}</h1>
+    {% if project.description %}
+      <p>{{ project.description }}</p>
+    {% endif %}
+  </div>
+
+  <!-- 2-col layout -->
+  <div class="content-layout">
+
+    <!-- Tasks column -->
+    <section class="tasks-section">
+      <div class="section-header">
+        <span class="section-title">
+          Tasks
+          <span class="task-count">{{ tasks.count }}</span>
+        </span>
+        <button class="btn-add-task" onclick="openTaskModal()">
+          <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="6.5" y1="1" x2="6.5" y2="12"/>
+            <line x1="1" y1="6.5" x2="12" y2="6.5"/>
+          </svg>
+          Add task
+        </button>
+      </div>
+
+      {% if tasks %}
+        <div class="task-list">
+          {% for task in tasks %}
+            <div class="task-row">
+              <div class="task-main">
+                <div class="task-title {% if task.status == 'done' %}done{% endif %}">{{ task.title }}</div>
+                <div class="task-meta">
+                  <span class="badge badge-{{ task.status }}">{{ task.get_status_display }}</span>
+                  <span class="badge badge-{{ task.priority }}">{{ task.get_priority_display }}</span>
+                  {% if task.due_date %}
+                    <span class="due-date {% if task.due_date < today and task.status != 'done' %}overdue{% endif %}">
+                      Due {{ task.due_date|date:"M j" }}
+                    </span>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="task-aside">
+                {% if task.assignee %}
+                  <div class="assignee-chip">
+                    <div class="assignee-avatar">
+                      {{ task.assignee.first_name|slice:":1"|upper }}{{ task.assignee.last_name|slice:":1"|upper }}
+                    </div>
+                    <span>{{ task.assignee.get_full_name|default:task.assignee.username }}</span>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="tasks-empty">
+          <div class="tasks-empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+          </div>
+          <h3>No tasks yet</h3>
+          <p>Add your first task to start tracking work.</p>
+          <button class="btn-add-task" onclick="openTaskModal()" style="margin-top:4px;">
+            <svg viewBox="0 0 13 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="6.5" y1="1" x2="6.5" y2="12"/>
+              <line x1="1" y1="6.5" x2="12" y2="6.5"/>
+            </svg>
+            Add task
+          </button>
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <div class="sidebar-title">Members</div>
+        <div class="member-list">
+
+          <!-- Owner always first -->
+          <div class="member-row">
+            <div class="member-avatar">
+              {{ project.owner.first_name|slice:":1"|upper }}{{ project.owner.last_name|slice:":1"|upper }}
+            </div>
+            <div class="member-info">
+              <div class="member-name">{{ project.owner.get_full_name|default:project.owner.username }}</div>
+              <div class="member-role">{{ project.owner.email }}</div>
+            </div>
+            <span class="role-badge role-owner">Owner</span>
+          </div>
+
+          {% for membership in memberships %}
+            {% if membership.user != project.owner %}
+              <div class="member-row">
+                <div class="member-avatar">
+                  {{ membership.user.first_name|slice:":1"|upper }}{{ membership.user.last_name|slice:":1"|upper }}
+                </div>
+                <div class="member-info">
+                  <div class="member-name">{{ membership.user.get_full_name|default:membership.user.username }}</div>
+                  <div class="member-role">{{ membership.user.email }}</div>
+                </div>
+                <span class="role-badge role-{{ membership.role }}">{{ membership.get_role_display }}</span>
+              </div>
+            {% endif %}
+          {% endfor %}
+
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-title">Details</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:0.83rem;color:var(--text-hint);">
+          <div><span style="color:var(--forest);font-weight:500;">Created</span><br>{{ project.created_at|date:"M j, Y" }}</div>
+          <div><span style="color:var(--forest);font-weight:500;">Updated</span><br>{{ project.updated_at|date:"M j, Y" }}</div>
+          <div><span style="color:var(--forest);font-weight:500;">Tasks</span><br>{{ tasks.count }} total</div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</main>
+
+<!-- Add task modal -->
+<div class="modal-overlay" id="task-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Add task</h2>
+      <button class="modal-close" onclick="closeTaskModal()">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="1" y1="1" x2="13" y2="13"/>
+          <line x1="13" y1="1" x2="1" y2="13"/>
+        </svg>
+      </button>
+    </div>
+
+    <form id="task-form" method="post" action="{% url 'projects:add_task' project.pk %}">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="task-title">Title</label>
+        <input type="text" id="task-title" name="title" placeholder="What needs to be done?" autocomplete="off" />
+        <div class="field-error" id="task-title-err">Title is required.</div>
+      </div>
+
+      <div class="form-group">
+        <label for="task-desc">Description <span class="label-opt">(optional)</span></label>
+        <textarea id="task-desc" name="description" placeholder="Add more details…"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="task-status">Status</label>
+          <select id="task-status" name="status">
+            {% for value, label in task_status_choices %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="task-priority">Priority</label>
+          <select id="task-priority" name="priority">
+            {% for value, label in task_priority_choices %}
+              <option value="{{ value }}" {% if value == 'medium' %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="task-due">Due date <span class="label-opt">(optional)</span></label>
+          <input type="date" id="task-due" name="due_date" />
+        </div>
+        <div class="form-group">
+          <label for="task-assignee">Assignee <span class="label-opt">(optional)</span></label>
+          <select id="task-assignee" name="assignee">
+            <option value="">— Unassigned —</option>
+            {% for user in member_users %}
+              <option value="{{ user.pk }}">{{ user.get_full_name|default:user.username }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="closeTaskModal()">Cancel</button>
+        <button type="button" class="btn-submit" onclick="submitTask()">Add task</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="{% static 'js/project_detail.js' %}"></script>
+</body>
+</html>
