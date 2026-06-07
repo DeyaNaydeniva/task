@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
+    'projects',
 ]
 
 MIDDLEWARE = [
@@ -120,7 +121,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'flowboard' / 'static']
 
 LOGIN_URL = 'accounts:auth'
-LOGIN_REDIRECT_URL = 'accounts:auth'
+LOGIN_REDIRECT_URL = '/dashboard/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

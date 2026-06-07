@@ -1,6 +1,11 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+
+
+def signout_view(request):
+    logout(request)
+    return redirect('accounts:auth')
 
 
 def auth_page(request):
@@ -37,7 +42,7 @@ def signin_view(request):
     if not remember:
         request.session.set_expiry(0)
 
-    return redirect('accounts:auth')
+    return redirect('projects:dashboard')
 
 
 def signup_view(request):
