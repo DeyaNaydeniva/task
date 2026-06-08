@@ -388,9 +388,74 @@ body {
   border-radius: 10px;
   flex-shrink: 0;
 }
-.role-owner  { background: rgba(61,92,73,0.1);  color: var(--sage-deep); }
-.role-member { background: var(--dew);           color: var(--forest); }
-.role-viewer { background: rgba(142,175,194,0.15); color: #5a8099; }
+.role-owner  { background: rgba(122,158,135,0.2);  color: var(--sage-dark); }
+.role-member { background: rgba(142,175,194,0.2);  color: #4a7090; }
+.role-viewer { background: rgba(201,185,154,0.22); color: #7a6040; }
+
+/* Member management controls (owner only) */
+.member-actions {
+  display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+}
+.member-role-select {
+  padding: 3px 22px 3px 7px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 500;
+  color: var(--forest); background: var(--dew);
+  border: 1px solid var(--border); border-radius: 7px;
+  outline: none; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M2 3.5l3 3 3-3' stroke='%238a9e93' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 6px center;
+  transition: border-color 0.15s;
+}
+.member-role-select:hover { border-color: var(--border-hover); }
+.member-role-select:focus { border-color: var(--sage); }
+
+.btn-remove-member {
+  width: 22px; height: 22px; flex-shrink: 0;
+  background: none; border: 1px solid rgba(196,154,154,0.3);
+  border-radius: 6px; color: var(--dusty-rose);
+  font-size: 0.85rem; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; padding: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn-remove-member:hover { background: rgba(196,154,154,0.12); border-color: rgba(196,154,154,0.55); }
+
+/* Add member form */
+.add-member-form { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.add-member-form input[type="email"] {
+  width: 100%; padding: 8px 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+  color: var(--forest); background: rgba(255,255,255,0.8);
+  border: 1.5px solid var(--border); border-radius: 8px; outline: none;
+  transition: border-color 0.15s;
+}
+.add-member-form input[type="email"]:focus { border-color: var(--sage); }
+.add-member-form input[type="email"]::placeholder { color: var(--text-hint); }
+.add-member-row { display: flex; gap: 6px; }
+.add-member-row select {
+  flex: 1; padding: 8px 26px 8px 9px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+  color: var(--forest); background: rgba(255,255,255,0.8);
+  border: 1.5px solid var(--border); border-radius: 8px;
+  outline: none; -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%238a9e93' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+  transition: border-color 0.15s;
+}
+.add-member-row select:focus { border-color: var(--sage); }
+.btn-add-member {
+  padding: 8px 12px; flex-shrink: 0;
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500;
+  color: #fff; background: var(--sage); border: none; border-radius: 8px;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-add-member:hover { background: var(--sage-dark); }
+
+/* Flash messages inside sidebar */
+.member-msg {
+  font-size: 0.8rem; padding: 7px 10px; border-radius: 8px; margin-bottom: 8px;
+}
+.member-msg.error { background: rgba(196,154,154,0.12); color: #8a4a4a; border: 1px solid rgba(196,154,154,0.3); }
 
 /* ── Labels ── */
 .label-pills {

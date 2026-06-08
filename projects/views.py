@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseForbidden
+from django.contrib import messages
 from django.utils import timezone
 from .models import Project, ProjectMembership
 from tasks.models import Task, Label
@@ -86,5 +87,62 @@ def add_task(request, pk):
                 assignee=assignee,
                 created_by=request.user,
             )
+
+    return redirect('projects:project_detail', pk=pk)
+
+
+@login_required
+def add_member(request, pk):
+    project = get_object_or_404(Project, pk=pk)
+    if project.owner != request.user:
+        return HttpResponseForbidden()
+
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip().lower()
+        role = request.POST.get('role', ProjectMembership.MEMBER)
+        if role not in (ProjectMembership.MEMBER, ProjectMembership.VIEWER):
+            role = ProjectMembership.MEMBER
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            messages.error(request, f'No account found for "{email}".')
+            return redirect('projects:project_detail', pk=pk)
+
+        if user == project.owner:
+            messages.error(request, 'That user is already the project owner.')
+            return redirect('projects:project_detail', pk=pk)
+
+        _, created = ProjectMembership.objects.get_or_create(
+            project=project, user=user, defaults={'role': role}
+        )
+        if not created:
+            messages.error(request, f'{user.get_full_name() or email} is already a member.')
+
+    return redirect('projects:project_detail', pk=pk)
+
+
+@login_required
+def change_member_role(request, pk, uid):
+    project = get_object_or_404(Project, pk=pk)
+    if project.owner != request.user:
+        return HttpResponseForbidden()
+
+    if request.method == 'POST':
+        role = request.POST.get('role', '')
+        if role in (ProjectMembership.MEMBER, ProjectMembership.VIEWER):
+            ProjectMembership.objects.filter(project=project, user_id=uid).update(role=role)
+
+    return redirect('projects:project_detail', pk=pk)
+
+
+@login_required
+def remove_member(request, pk, uid):
+    project = get_object_or_404(Project, pk=pk)
+    if project.owner != request.user:
+        return HttpResponseForbidden()
+
+    if request.method == 'POST' and int(uid) != project.owner.pk:
+        ProjectMembership.objects.filter(project=project, user_id=uid).delete()
 
     return redirect('projects:project_detail', pk=pk)

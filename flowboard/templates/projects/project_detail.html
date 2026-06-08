@@ -128,9 +128,16 @@
     <aside class="sidebar">
       <div class="sidebar-card">
         <div class="sidebar-title">Members</div>
+
+        {% if messages %}
+          {% for msg in messages %}
+            <div class="member-msg {{ msg.tags }}">{{ msg }}</div>
+          {% endfor %}
+        {% endif %}
+
         <div class="member-list">
 
-          <!-- Owner always first -->
+          <!-- Owner -->
           <div class="member-row">
             <div class="member-avatar">
               {{ project.owner.first_name|slice:":1"|upper }}{{ project.owner.last_name|slice:":1"|upper }}
@@ -152,12 +159,43 @@
                   <div class="member-name">{{ membership.user.get_full_name|default:membership.user.username }}</div>
                   <div class="member-role">{{ membership.user.email }}</div>
                 </div>
-                <span class="role-badge role-{{ membership.role }}">{{ membership.get_role_display }}</span>
+                {% if project.owner == request.user %}
+                  <div class="member-actions">
+                    <form method="post" action="{% url 'projects:change_member_role' project.pk membership.user.pk %}">
+                      {% csrf_token %}
+                      <select class="member-role-select" name="role" onchange="this.form.submit()" title="Change role">
+                        <option value="member" {% if membership.role == 'member' %}selected{% endif %}>Member</option>
+                        <option value="viewer" {% if membership.role == 'viewer' %}selected{% endif %}>Viewer</option>
+                      </select>
+                    </form>
+                    <form method="post" action="{% url 'projects:remove_member' project.pk membership.user.pk %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn-remove-member" title="Remove member">×</button>
+                    </form>
+                  </div>
+                {% else %}
+                  <span class="role-badge role-{{ membership.role }}">{{ membership.get_role_display }}</span>
+                {% endif %}
               </div>
             {% endif %}
           {% endfor %}
 
         </div>
+
+        {% if project.owner == request.user %}
+          <form class="add-member-form" method="post" action="{% url 'projects:add_member' project.pk %}">
+            {% csrf_token %}
+            <input type="email" name="email" placeholder="Email address" autocomplete="off" />
+            <div class="add-member-row">
+              <select name="role">
+                <option value="member">Member</option>
+                <option value="viewer">Viewer</option>
+              </select>
+              <button type="submit" class="btn-add-member">Add</button>
+            </div>
+          </form>
+        {% endif %}
+
       </div>
 
       <!-- Labels -->
