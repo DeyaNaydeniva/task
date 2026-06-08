@@ -1,0 +1,279 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ task.title }} — Flowboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/task_detail.css' %}" />
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a href="{% url 'projects:dashboard' %}" class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="6" height="6" rx="1.5" fill="#B8D4BF"/>
+        <rect x="10" y="2" width="6" height="6" rx="1.5" fill="#B8D4BF" opacity=".6"/>
+        <rect x="2" y="10" width="6" height="6" rx="1.5" fill="#B8D4BF" opacity=".6"/>
+        <rect x="10" y="10" width="6" height="6" rx="1.5" fill="#B8D4BF" opacity=".35"/>
+      </svg>
+    </div>
+    <span class="brand-name">Flowboard</span>
+  </a>
+
+  <div class="navbar-spacer"></div>
+
+  <div class="nav-user">
+    <div class="nav-avatar">{{ request.user.first_name|slice:":1"|upper }}{{ request.user.last_name|slice:":1"|upper }}</div>
+    <span class="nav-username">{{ request.user.get_full_name|default:request.user.username }}</span>
+    <a href="{% url 'accounts:signout' %}" class="btn-logout">Sign out</a>
+  </div>
+</nav>
+
+<main class="page">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="{% url 'projects:dashboard' %}">Projects</a>
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2l4 4-4 4"/></svg>
+    <a href="{% url 'projects:project_detail' project.pk %}">{{ project.name }}</a>
+    <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2l4 4-4 4"/></svg>
+    <span>{{ task.title }}</span>
+  </nav>
+
+  <div class="content-layout">
+
+    <!-- Left: task body + comments -->
+    <div class="task-body">
+
+      <h1 class="task-heading {% if task.status == 'done' %}done{% endif %}">{{ task.title }}</h1>
+
+      <div class="task-badges">
+        <span class="badge badge-{{ task.status }}">{{ task.get_status_display }}</span>
+        <span class="badge badge-{{ task.priority }}">{{ task.get_priority_display }}</span>
+        {% if task.due_date %}
+          <span class="due-date {% if task.due_date < today and task.status != 'done' %}overdue{% endif %}">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="2" width="12" height="11" rx="2"/>
+              <path d="M1 6h12M5 1v2M9 1v2"/>
+            </svg>
+            Due {{ task.due_date|date:"M j, Y" }}
+          </span>
+        {% endif %}
+      </div>
+
+      {% if task.description %}
+        <div class="task-description">{{ task.description }}</div>
+      {% else %}
+        <div class="task-no-desc">No description provided.</div>
+      {% endif %}
+
+      <div class="section-divider"></div>
+
+      <!-- Comments -->
+      <div class="comments-heading">
+        Comments
+        <span class="comment-count">{{ comments.count }}</span>
+      </div>
+
+      {% if comments %}
+        <div class="comment-list">
+          {% for comment in comments %}
+            <div class="comment-item">
+              <div class="comment-avatar">
+                {{ comment.author.first_name|slice:":1"|upper }}{{ comment.author.last_name|slice:":1"|upper }}
+              </div>
+              <div class="comment-bubble">
+                <div class="comment-meta">
+                  <span class="comment-author">{{ comment.author.get_full_name|default:comment.author.username }}</span>
+                  <span class="comment-date">{{ comment.created_at|date:"M j, Y · g:i A" }}</span>
+                </div>
+                <div class="comment-body">{{ comment.body }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="comments-empty">No comments yet. Be the first to add one.</div>
+      {% endif %}
+
+      <!-- New comment form -->
+      <div class="comment-form-wrap">
+        <div class="comment-avatar">
+          {{ request.user.first_name|slice:":1"|upper }}{{ request.user.last_name|slice:":1"|upper }}
+        </div>
+        <form class="comment-form" method="post" action="{% url 'tasks:task_detail' task.pk %}">
+          {% csrf_token %}
+          <textarea class="comment-input" name="body" placeholder="Add a comment…" rows="3"></textarea>
+          <button type="submit" class="btn-comment">Post comment</button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Right sidebar -->
+    <aside class="sidebar">
+
+      <!-- Assignee + details -->
+      <div class="sidebar-card">
+        <div class="sidebar-label">Assignee</div>
+        {% if task.assignee %}
+          <div class="assignee-inline">
+            <div class="assignee-av">
+              {{ task.assignee.first_name|slice:":1"|upper }}{{ task.assignee.last_name|slice:":1"|upper }}
+            </div>
+            <span class="meta-val">{{ task.assignee.get_full_name|default:task.assignee.username }}</span>
+          </div>
+        {% else %}
+          <span class="meta-val unassigned">Unassigned</span>
+        {% endif %}
+      </div>
+
+      <div class="sidebar-card">
+        <div class="sidebar-label">Details</div>
+        <div class="meta-row">
+          <span class="meta-key">Created by</span>
+          <span class="meta-val">{{ task.created_by.get_full_name|default:task.created_by.username }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key">Created</span>
+          <span class="meta-val">{{ task.created_at|date:"M j, Y" }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-key">Last updated</span>
+          <span class="meta-val">{{ task.updated_at|date:"M j, Y" }}</span>
+        </div>
+        {% if task.due_date %}
+          <div class="meta-row">
+            <span class="meta-key">Due date</span>
+            <span class="meta-val {% if task.due_date < today and task.status != 'done' %}overdue{% endif %}">
+              {{ task.due_date|date:"M j, Y" }}
+            </span>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Change status -->
+      <div class="sidebar-card">
+        <div class="sidebar-label">Status</div>
+        <form class="status-form" method="post" action="{% url 'tasks:update_task_status' task.pk %}">
+          {% csrf_token %}
+          <select name="status" onchange="this.form.submit()">
+            {% for value, label in task_status_choices %}
+              <option value="{{ value }}" {% if task.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+
+      <!-- Actions -->
+      <div class="sidebar-card">
+        <div class="sidebar-label">Actions</div>
+        <button class="btn-edit" onclick="openEditModal()">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9.5 2.5l2 2L4 12H2v-2L9.5 2.5z"/>
+          </svg>
+          Edit task
+        </button>
+        {% if can_delete %}
+          <button class="btn-delete" onclick="openDeleteModal()">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 4h10M5 4V2h4v2M5.5 7v4M8.5 7v4M3 4l.7 8h6.6L11 4"/>
+            </svg>
+            Delete task
+          </button>
+        {% endif %}
+      </div>
+
+    </aside>
+  </div>
+</main>
+
+<!-- Edit task modal -->
+<div class="modal-overlay" id="edit-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Edit task</h2>
+      <button class="modal-close" onclick="closeEditModal()">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/>
+        </svg>
+      </button>
+    </div>
+    <form id="edit-form" method="post" action="{% url 'tasks:update_task' task.pk %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="edit-title">Title</label>
+        <input type="text" id="edit-title" name="title" value="{{ task.title }}" autocomplete="off" />
+        <div class="field-error" id="edit-title-err">Title is required.</div>
+      </div>
+      <div class="form-group">
+        <label for="edit-desc">Description <span class="label-opt">(optional)</span></label>
+        <textarea id="edit-desc" name="description">{{ task.description }}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="edit-priority">Priority</label>
+          <select id="edit-priority" name="priority">
+            {% for value, label in task_priority_choices %}
+              <option value="{{ value }}" {% if task.priority == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="edit-due">Due date <span class="label-opt">(optional)</span></label>
+          <input type="date" id="edit-due" name="due_date" value="{{ task.due_date|date:'Y-m-d' }}" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="edit-assignee">Assignee <span class="label-opt">(optional)</span></label>
+        <select id="edit-assignee" name="assignee">
+          <option value="">— Unassigned —</option>
+          {% for user in member_users %}
+            <option value="{{ user.pk }}" {% if task.assignee and task.assignee.pk == user.pk %}selected{% endif %}>
+              {{ user.get_full_name|default:user.username }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+        <button type="button" class="btn-submit" onclick="submitEdit()">Save changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete confirm modal -->
+<div class="modal-overlay" id="delete-modal-overlay">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2>Delete task</h2>
+      <button class="modal-close" onclick="closeDeleteModal()">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="1" y1="1" x2="13" y2="13"/><line x1="13" y1="1" x2="1" y2="13"/>
+        </svg>
+      </button>
+    </div>
+    <p class="delete-confirm-body">
+      Are you sure you want to delete <strong>{{ task.title }}</strong>?
+      This will also remove all comments. This action cannot be undone.
+    </p>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
+      <form method="post" action="{% url 'tasks:delete_task' task.pk %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn-danger">Delete</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/task_detail.js' %}"></script>
+</body>
+</html>

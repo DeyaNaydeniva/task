@@ -223,6 +223,7 @@ body {
 .task-main { min-width: 0; }
 
 .task-title {
+  display: block;
   font-size: 0.92rem;
   font-weight: 500;
   color: var(--forest);
@@ -230,8 +231,11 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   margin-bottom: 6px;
+  text-decoration: none;
 }
+.task-title:hover { color: var(--sage-dark); text-decoration: underline; }
 .task-title.done { text-decoration: line-through; color: var(--text-hint); }
+.task-title.done:hover { color: var(--text-hint); text-decoration: line-through; }
 
 .task-meta {
   display: flex;

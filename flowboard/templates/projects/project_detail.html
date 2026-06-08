@@ -79,7 +79,7 @@
           {% for task in tasks %}
             <div class="task-row">
               <div class="task-main">
-                <div class="task-title {% if task.status == 'done' %}done{% endif %}">{{ task.title }}</div>
+                <a class="task-title {% if task.status == 'done' %}done{% endif %}" href="{% url 'tasks:task_detail' task.pk %}">{{ task.title }}</a>
                 <div class="task-meta">
                   <span class="badge badge-{{ task.status }}">{{ task.get_status_display }}</span>
                   <span class="badge badge-{{ task.priority }}">{{ task.get_priority_display }}</span>
