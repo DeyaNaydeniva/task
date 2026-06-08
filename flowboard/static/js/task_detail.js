@@ -52,3 +52,14 @@ document.addEventListener('keydown', (e) => {
     closeDeleteModal();
   }
 });
+
+/* Add label — submit to the selected label's toggle URL */
+function addLabel() {
+  const sel = document.getElementById('add-label-select');
+  const opt = sel.options[sel.selectedIndex];
+  const url = opt ? opt.dataset.url : null;
+  if (!url) return;
+  const form = sel.closest('form');
+  form.action = url;
+  form.submit();
+}

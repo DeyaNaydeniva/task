@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.http import HttpResponseForbidden
 from django.utils import timezone
 from .models import Project, ProjectMembership
-from tasks.models import Task
+from tasks.models import Task, Label
 
 User = get_user_model()
 
@@ -44,6 +44,8 @@ def project_detail(request, pk):
 
     member_users = [project.owner] + [m.user for m in memberships if m.user != project.owner]
 
+    labels = Label.objects.filter(project=project)
+
     context = {
         'project': project,
         'tasks': tasks,
@@ -52,6 +54,7 @@ def project_detail(request, pk):
         'task_status_choices': Task.STATUS_CHOICES,
         'task_priority_choices': Task.PRIORITY_CHOICES,
         'today': timezone.now().date(),
+        'labels': labels,
     }
     return render(request, 'projects/project_detail.html', context)
 

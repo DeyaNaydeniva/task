@@ -392,6 +392,50 @@ body {
 .role-member { background: var(--dew);           color: var(--forest); }
 .role-viewer { background: rgba(142,175,194,0.15); color: #5a8099; }
 
+/* ── Labels ── */
+.label-pills {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px;
+}
+.label-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 0.72rem; font-weight: 500; color: #fff;
+  white-space: nowrap;
+}
+.label-pill-btn {
+  background: none; border: none; color: inherit;
+  cursor: pointer; opacity: 0.75; padding: 0; line-height: 1;
+  font-size: 0.8rem; display: flex; align-items: center;
+}
+.label-pill-btn:hover { opacity: 1; }
+
+.label-form {
+  display: flex; gap: 6px; align-items: center; margin-top: 4px;
+}
+.label-form input[type="text"] {
+  flex: 1; padding: 7px 10px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.82rem;
+  color: var(--forest); background: rgba(255,255,255,0.8);
+  border: 1.5px solid var(--border); border-radius: 8px; outline: none;
+  transition: border-color 0.15s;
+}
+.label-form input[type="text"]:focus { border-color: var(--sage); }
+.label-form input[type="color"] {
+  width: 30px; height: 30px; padding: 2px;
+  border: 1.5px solid var(--border); border-radius: 7px;
+  cursor: pointer; background: #fff; flex-shrink: 0;
+}
+.label-form input[type="color"]:focus { border-color: var(--sage); }
+.btn-label-add {
+  padding: 7px 12px;
+  font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 500;
+  color: #fff; background: var(--sage); border: none; border-radius: 8px;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  transition: background 0.15s;
+}
+.btn-label-add:hover { background: var(--sage-dark); }
+.labels-empty { font-size: 0.82rem; color: var(--text-hint); font-style: italic; margin-bottom: 8px; }
+
 /* ── Modal ── */
 .modal-overlay {
   position: fixed;

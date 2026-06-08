@@ -67,6 +67,14 @@
         {% endif %}
       </div>
 
+      {% if task_labels %}
+        <div class="task-badges" style="margin-top:0.5rem;">
+          {% for label in task_labels %}
+            <span class="label-pill" style="background:{{ label.color }};">{{ label.name }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+
       {% if task.description %}
         <div class="task-description">{{ task.description }}</div>
       {% else %}
@@ -155,6 +163,39 @@
               {{ task.due_date|date:"M j, Y" }}
             </span>
           </div>
+        {% endif %}
+      </div>
+
+      <!-- Labels -->
+      <div class="sidebar-card">
+        <div class="sidebar-label">Labels</div>
+        {% if task_labels %}
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+            {% for label in task_labels %}
+              <form method="post" action="{% url 'tasks:toggle_task_label' task.pk label.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="label-pill" style="background:{{ label.color }};border:none;cursor:pointer;" title="Remove label">
+                  {{ label.name }} <span style="opacity:0.75;">×</span>
+                </button>
+              </form>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if available_labels %}
+          <form class="label-add-row" method="post" action="">
+            {% csrf_token %}
+            <select id="add-label-select" name="_label_select">
+              <option value="">— Add label —</option>
+              {% for label in available_labels %}
+                <option value="{{ label.pk }}" data-url="{% url 'tasks:toggle_task_label' task.pk label.pk %}">
+                  {{ label.name }}
+                </option>
+              {% endfor %}
+            </select>
+            <button type="button" class="btn-label-add" onclick="addLabel()">Add</button>
+          </form>
+        {% elif not task_labels %}
+          <p class="labels-empty-hint">No labels exist for this project yet.</p>
         {% endif %}
       </div>
 

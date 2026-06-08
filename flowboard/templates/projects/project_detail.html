@@ -160,6 +160,34 @@
         </div>
       </div>
 
+      <!-- Labels -->
+      <div class="sidebar-card">
+        <div class="sidebar-title">Labels</div>
+        {% if labels %}
+          <div class="label-pills">
+            {% for label in labels %}
+              <span class="label-pill" style="background:{{ label.color }};">
+                {{ label.name }}
+                {% if project.owner == request.user %}
+                  <form method="post" action="{% url 'tasks:delete_label' label.pk %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="label-pill-btn" title="Delete label">×</button>
+                  </form>
+                {% endif %}
+              </span>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="labels-empty">No labels yet.</p>
+        {% endif %}
+        <form class="label-form" method="post" action="{% url 'tasks:create_label' project.pk %}">
+          {% csrf_token %}
+          <input type="text" name="name" placeholder="Label name" maxlength="100" autocomplete="off" />
+          <input type="color" name="color" value="#7A9E87" title="Pick colour" />
+          <button type="submit" class="btn-label-add">Add</button>
+        </form>
+      </div>
+
       <div class="sidebar-card">
         <div class="sidebar-title">Details</div>
         <div style="display:flex;flex-direction:column;gap:8px;font-size:0.83rem;color:var(--text-hint);">

@@ -3,6 +3,18 @@ from django.conf import settings
 from projects.models import Project
 
 
+class Label(models.Model):
+    name = models.CharField(max_length=100)
+    color = models.CharField(max_length=7, default='#7A9E87')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='labels')
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
 class Task(models.Model):
     TODO = 'todo'
     IN_PROGRESS = 'in_progress'
@@ -39,6 +51,7 @@ class Task(models.Model):
         on_delete=models.CASCADE,
         related_name='created_tasks',
     )
+    labels = models.ManyToManyField(Label, blank=True, related_name='tasks')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
