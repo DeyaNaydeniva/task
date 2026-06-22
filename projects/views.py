@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.http import HttpResponseForbidden
 from django.contrib import messages
 from django.utils import timezone
@@ -12,7 +13,9 @@ User = get_user_model()
 
 @login_required
 def dashboard(request):
-    projects = Project.objects.filter(owner=request.user)
+    projects = Project.objects.filter(
+        Q(owner=request.user) | Q(memberships__user=request.user)
+    ).distinct()
     return render(request, 'projects/dashboard.html', {'projects': projects})
 
 
