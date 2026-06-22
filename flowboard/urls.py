@@ -22,4 +22,9 @@ urlpatterns = [
     path('', include('accounts.urls', namespace='accounts')),
     path('', include('projects.urls', namespace='projects')),
     path('', include('tasks.urls', namespace='tasks')),
+    path('api/', include('accounts.api_urls')),
+    path('api/', include('users.api_urls')),
+    path('api/', include('projects.api_urls')),
+    path('api/', include('tasks.api_urls')),
+    path('api/', include('comments.api_urls')),
 ]
